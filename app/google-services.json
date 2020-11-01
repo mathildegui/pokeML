@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "962350556819",
+    "firebase_url": "https://pokeml-4adc9.firebaseio.com",
+    "project_id": "pokeml-4adc9",
+    "storage_bucket": "pokeml-4adc9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:962350556819:android:b5b3fb0db3447685554f66",
+        "android_client_info": {
+          "package_name": "com.gui.pokeml"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "962350556819-mgd9vgvkq1vmdjaqto4vqcgd3eoovo8f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYDAB-7aSl3R7ai5ap8T7Omv9uFOivecc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "962350556819-mgd9vgvkq1vmdjaqto4vqcgd3eoovo8f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
