@@ -7,23 +7,26 @@ import android.graphics.Color
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import com.google.android.material.snackbar.Snackbar
+import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import android.view.Menu
-import android.view.MenuItem
-import com.google.firebase.ml.common.modeldownload.FirebaseModelDownloadConditions
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.ml.common.modeldownload.FirebaseModelManager
 import com.google.firebase.ml.custom.FirebaseCustomRemoteModel
-import com.google.firebase.ml.custom.FirebaseModelInputs
 import com.gui.pokeml.databinding.ActivityMainBinding
+import com.gui.pokeml.io.PokemonService
+import com.gui.pokeml.io.model.Generation
 import org.tensorflow.lite.Interpreter
-import java.io.BufferedReader
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
-import java.io.InputStreamReader
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
@@ -52,6 +55,38 @@ class MainActivity : AppCompatActivity() {
                     .setAction("Action", null).show()
             dispatchTakePictureIntent()
         }
+        fetch()
+    }
+
+    fun fetch() {
+        val retrofit: Retrofit = Retrofit.Builder()
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl("https://pokeapi.co/api/v2/")
+                .build()
+        val service: PokemonService = retrofit.create(PokemonService::class.java)
+        service.listRepos(1).enqueue(object: Callback<Generation> {
+            override fun onFailure(call: Call<Generation>, t: Throwable) {
+                Log.d(TAG, "onFailure")
+                t.printStackTrace()
+            }
+
+            override fun onResponse(call: Call<Generation>, response: Response<Generation>) {
+                if(response.body() == null) {
+                    Log.d(TAG, "onResponse: Empty body")
+//                    callback.onException(AriseException(context.getString(R.string.arise_error_wrong_access_key)))
+                }
+
+                response.body()?.let {
+                    Log.d(TAG, "onResponse: $it")
+//                    ArisePreferencesUtil(context).set(
+//                            ArisePreferencesUtil.PREF_STADIUM_ID,
+//                            it.get("client_id").asString
+//                    )
+//                    callback.onComplete()
+                }
+            }
+        })
+//        Call<List<Pokemon>> pokemons = service.listRepos(1)
     }
 
     val REQUEST_IMAGE_CAPTURE = 1
@@ -72,9 +107,9 @@ class MainActivity : AppCompatActivity() {
             //imageView.setImageBitmap(imageBitmap)
             if(imageBitmap != null) {
                 val scaledBitmap = Bitmap.createScaledBitmap(imageBitmap, 224, 224, true)
-                val input = ByteBuffer.allocateDirect(224*224*3*4).order(ByteOrder.nativeOrder())
-                for (y in 0 until 224) {
-                    for (x in 0 until 224) {
+                val input = ByteBuffer.allocateDirect(224 * 224 * 3 * 4).order(ByteOrder.nativeOrder())
+                for (y in 0 until DIM_IMG_SIZE_Y) {
+                    for (x in 0 until DIM_IMG_SIZE_X) {
                         val px = scaledBitmap.getPixel(x, y)
 
                         // Get channel values from the pixel value.
@@ -89,11 +124,6 @@ class MainActivity : AppCompatActivity() {
                         val gf = (g - IMAGE_MEAN) / IMAGE_STD
                         val bf = (b - IMAGE_MEAN) / IMAGE_STD
 
-
-//                        input.putFloat(((px shr 16 and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
-//                        input.putFloat(((px shr 8 and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
-//                        input.putFloat(((px and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
-
                         input.putFloat(rf)
                         input.putFloat(gf)
                         input.putFloat(bf)
@@ -105,30 +135,16 @@ class MainActivity : AppCompatActivity() {
                     modelOutput.rewind()
                     val probabilities = modelOutput.asFloatBuffer()
                     try {
-//                    val reader = BufferedReader(
-//                            InputStreamReader(assets.open("custom_labels.txt")))
-
-
                         for (i in 0 until probabilities.capacity()) {
-
-
                             val label: String = pokeArray[i]
-//                        val label: String = reader.readLine()
-
-
                             val probability = probabilities.get(i)
                             if(probability > 0.5)
-                                Log.d("POKE_RESULT","$label: $probability")
+                                Log.d("POKE_RESULT", "$label: $probability")
                         }
                     } catch (e: IOException) {
                         // File not found?
                     }
                 }
-
-
-
-
-
 
 //                convertBitmapToByteBuffer(scaledBitmap)
 //                transformImg()
@@ -227,45 +243,6 @@ class MainActivity : AppCompatActivity() {
             "tangela", "tauros", "tentacool", "tentacruel", "vaporeon", "venomoth", "venonat", "venusaur", "victreebel",
             "vileplume", "voltorb", "vulpix", "wartortle", "weedle", "weepinbell", "weezing", "wigglytuff", "zapdos", "zubat")
 
-    /*fun transformImg() {
-
-       *//* val inputs = FirebaseModelInputs.Builder()
-                .add(convertBitmapToByteBuffer(bitmap)) // add() as many input arrays as your model requires
-                .build()*//*
-
-        val bufferSize = 1000 * java.lang.Float.SIZE / java.lang.Byte.SIZE
-        val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
-        interpreter?.run(imgData, modelOutput)
-        modelOutput.rewind()
-        val pokemons = modelOutput.asFloatBuffer()
-        try {
-            while (pokemons.hasRemaining()) {
-                val probability = pokemons.get()
-                Log.d("WANTED_POKE", pokemons.position().toString())
-                val label = pokeArray[pokemons.position()]
-                Log.d("RESULT_POKE", "$label: $probability")
-            }
-        } catch (e: Exception) {
-
-        }
-        pokeArray.forEach {
-
-        }
-        *//*modelOutput.rewind()
-val probabilities = modelOutput.asFloatBuffer()
-try {
-    val reader = BufferedReader(
-            InputStreamReader(assets.open("custom_labels.txt")))
-    for (i in probabilities.capacity()) {
-        val label: String = reader.readLine()
-        val probability = probabilities.get(i)
-        println("$label: $probability")
-    }
-} catch (e: IOException) {
-    // File not found?
-}*//*
-    }*/
-
     companion object {
         /** Dimensions of inputs.  */
         const val DIM_IMG_SIZE_X = 224
@@ -274,25 +251,6 @@ try {
         const val DIM_PIXEL_SIZE = 3
         const val IMAGE_MEAN = 128
         private const val IMAGE_STD = 128.0f
+        private const val TAG = "Poke::MainActivity"
     }
-
-   /* private val intValues = IntArray(DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y)
-    private var imgData: ByteBuffer = ByteBuffer.allocateDirect(
-            4 * DIM_BATCH_SIZE * DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y * DIM_PIXEL_SIZE)
-    private fun convertBitmapToByteBuffer(bitmap: Bitmap?) : ByteBuffer {
-        //Clear the Bytebuffer for a new image
-        imgData.rewind()
-        bitmap?.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-        // Convert the image to floating point.
-        var pixel = 0
-        for (i in 0 until DIM_IMG_SIZE_X) {
-            for (j in 0 until DIM_IMG_SIZE_Y) {
-                val currPixel = intValues[pixel++]
-                imgData.putFloat(((currPixel shr 16 and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
-                imgData.putFloat(((currPixel shr 8 and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
-                imgData.putFloat(((currPixel and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
-            }
-        }
-        return imgData
-    }*/
 }

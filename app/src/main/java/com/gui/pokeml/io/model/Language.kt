@@ -1,4 +1,6 @@
 package com.gui.pokeml.io.model
 
-class Language {
-}
+data class Language (
+    val language: Item,
+    val name: String
+)

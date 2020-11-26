@@ -1,4 +1,6 @@
 package com.gui.pokeml.io.model
 
-class Item {
-}
+data class Item (
+        val name: String,
+        val url: String
+)
