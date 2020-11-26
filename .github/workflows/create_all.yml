@@ -1,6 +1,9 @@
 name: Create Release and upload artifacts
 on:
   push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
     branches:
       # Specify branch from where you are sharing build
       - 'main'
@@ -21,12 +24,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         with:
-          tag_name: v1.0.2
-          release_name: Release v1.0.2
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
           body: |
-            Changes in this Release
-            - First Change
-            - Second Change
+            Changes in this ${{ github.ref }} Release
           draft: false
           prerelease: false
       - name: Settting up JDK 1.8
@@ -36,11 +37,6 @@ jobs:
       - name: Runing build command
         # Run your own gradle command to generate build.
         run: ./gradlew assembleDebug --stacktrace
-      - name: Uploading build
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-debug-v1.0.2
-          path: app/build/outputs/apk/debug/app-debug.apk
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
@@ -49,5 +45,5 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           asset_path: app/build/outputs/apk/debug/app-debug.apk
-          asset_name: app-debug-v1.0.2.zip
+          asset_name: app-debug-${{ github.ref }}.apk
           asset_content_type: application/zip
