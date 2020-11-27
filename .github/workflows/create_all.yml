@@ -21,8 +21,8 @@ jobs:
         run: |
           versionName=`sed '15q;d' app/build.gradle | cut -d "=" -f2 | xargs`
           versionName_=`sed 's/.*(\".*\")/\1/' versionName | xargs`
-          export VERSION_NAME=versionName_
-          TEST_NAME=versionName_
+          export VERSION_NAME=$versionName_
+          TEST_NAME=$versionName_
           echo "VERSION_NAME=$TEST_NAME" >> $GITHUB_ENV
         env:
           LAST_NAME: $VERSION_NAME
