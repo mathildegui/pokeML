@@ -20,7 +20,7 @@ jobs:
         #get version name from app_versions.gradle file (5.6.2)
         run: |
           versionName=`sed '15q;d' app/build.gradle | cut -d "=" -f2 | xargs`
-          echo $versionName | `sed 's/^versionName " \(.*\) "$/\1/p'`
+          echo "${versionName}" | `sed 's/^versionName " \(.*\) "$/\1/p'`
           export VERSION_NAME=$versionName
           TEST_NAME=$versionName
           echo "VERSION_NAME=$TEST_NAME" >> $GITHUB_ENV
