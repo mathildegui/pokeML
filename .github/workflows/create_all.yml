@@ -19,11 +19,11 @@ jobs:
       - name: Setup release information
         #get version name from app_versions.gradle file (5.6.2)
         run: | #'s|.*"PlayingNow":"\([^"]*\)".*|\1|p'
-          vn=`sed '15q;d' app/build.gradle | cut -d ":" | xargs`
-          versionName=`sed 's/.*(\".*\")/\1/' vn`
-          export VERSION_NAME=$versionName
-          TEST_NAME=$versionName
-          echo "VERSION_NAME=$TEST_NAME" >> $GITHUB_ENV
+          versionName=`sed '15q;d' app/build.gradle | cut -d ":" | xargs`
+          versionName_=`sed 's/.*(\".*\")/\1/' versionName`
+          export VERSION_NAME=$versionName_
+          $VERSION_NAME=$versionName
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
         env:
           LAST_NAME: $VERSION_NAME
       - name: Create Release
