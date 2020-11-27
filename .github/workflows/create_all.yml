@@ -18,11 +18,11 @@ jobs:
           ref: 'main'
       - name: Setup release information
         #get version name from app_versions.gradle file (5.6.2)
+        # grep versionName app/build.gradle
+        #
         run: |
-          versionName=`sed '15q;d' app/build.gradle | cut -d "=" -f2 | xargs`
-          versionName_=`sed 's/^.*"\(.*\).*$/\1/p' $versionName | xargs`
-          export VERSION_NAME=$versionName_
-          TEST_NAME=$versionName_
+          versionName=`sed -n 's#versionName ##p' app/build.gradle| cut -d \" -f2`
+          export VERSION_NAME=$versionName
           echo "VERSION_NAME=$TEST_NAME" >> $GITHUB_ENV
         env:
           LAST_NAME: $VERSION_NAME
