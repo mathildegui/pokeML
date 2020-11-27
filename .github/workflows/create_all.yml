@@ -18,14 +18,12 @@ jobs:
           ref: 'main'
       - name: Setup release information
         #get version name from app_versions.gradle file (5.6.2)
-        run: |
-
-
-
+        run:
           versionName=`sed '2q;d' app/build.gradle | cut -d "=" -f2 | xargs`
           export VERSION_NAME=$versionName
           echo "::set-env name=VERSION_NAME::$VERSION_NAME"
-
+        env:
+          LAST_NAME: $VERSION_NAME
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
