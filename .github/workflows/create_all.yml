@@ -19,11 +19,15 @@ jobs:
       - name: Setup release information
         #get version name from app_versions.gradle file (5.6.2)
         run: |
-          versionName=`sed '2q;d' app/build.gradle | cut -d "=" -f2 | xargs`
-          export VERSION_NAME=$versionName
+
+
           # disable command workflow processing
           echo "::stop-commands::`echo -n ${{ github.token }} | sha256sum | head -c 64`"
+
+          versionName=`sed '2q;d' app/build.gradle | cut -d "=" -f2 | xargs`
+          export VERSION_NAME=$versionName
           echo "::set-env name=VERSION_NAME::$VERSION_NAME"
+
           # enable workflow command processing
           echo "::`echo -n ${{ github.token }} | sha256sum | head -c 64`::"
       - name: Create Release
