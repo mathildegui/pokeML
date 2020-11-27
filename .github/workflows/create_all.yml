@@ -21,7 +21,7 @@ jobs:
         run: |
           versionName=`sed '2q;d' app/build.gradle | cut -d "=" -f2 | xargs`
           export VERSION_NAME=$versionName
-          echo 'VERSION_NAME=${{ VERSION_NAME }}' >> $GITHUB_ENV
+          echo 'VERSION_NAME=${{ $versionName }}' >> $GITHUB_ENV
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
