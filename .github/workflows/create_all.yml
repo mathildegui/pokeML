@@ -16,7 +16,7 @@ jobs:
         with:
           # Specify branch from where you are sharing build
           ref: 'main'
-      – name: Setup release information
+      - name: Setup release information
         #get version name from app_versions.gradle file (5.6.2)
         run: |
           versionName=`sed '2q;d' app/build.gradle | cut -d "=" -f2 | xargs`
