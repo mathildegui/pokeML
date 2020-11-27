@@ -21,7 +21,8 @@ jobs:
         run: |
           versionName=`sed '2q;d' app/build.gradle | cut -d "=" -f2 | xargs`
           export VERSION_NAME=$versionName
-          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          TEST_NAME=$versionName
+          echo "VERSION_NAME=$TEST_NAME" >> $GITHUB_ENV
         env:
           LAST_NAME: $VERSION_NAME
       - name: Create Release
