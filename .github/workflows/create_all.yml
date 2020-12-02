@@ -77,9 +77,14 @@ jobs:
         with:
           releaseDirectory: app/build/outputs/apk/release
           signingKeyBase64: ${{ env.SIGNING_KEY }}
-          alias: ${{ en.ALIAS }}
+          alias: ${{ env.ALIAS }}
           keyStorePassword: ${{ env.KEY_STORE_PASSWORD }}
           keyPassword: ${{ env.KEY_PASSWORD }}
           #env:
           #  // override default build-tools version (29.0.3) -- optional
           #  BUILD_TOOLS_VERSION: "30.0.2"
+      - name: Signed app APK upload
+        id: signed-apk-upload
+        uses: actions/upload-artifact@v2
+          with:
+            path: ${{ steps.sign-apk.outputs.signedReleaseFile }}
