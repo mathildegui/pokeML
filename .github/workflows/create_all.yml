@@ -72,7 +72,7 @@ jobs:
           #FIXME use this after https://github.com/r0adkll/sign-android-release
           #FIXME Release beta and prod
       - name: Sign app APK
-        id: sign_apk
+        id: sign-apk
         uses: r0adkll/sign-android-release@v1
         with:
           releaseDirectory: app/build/outputs/apk/release
@@ -87,4 +87,4 @@ jobs:
         id: signed-apk-upload
         uses: actions/upload-artifact@v2
           with:
-            path: ${{steps.sign_apk.outputs.signedReleaseFile}}
+            path: ${{ steps.sign-apk.outputs.signedReleaseFile }}
