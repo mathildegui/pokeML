@@ -17,9 +17,19 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        beta {
+            keyAlias 'com.immersiv.sports.arise'
+            keyPassword 'kd9:hdbYsexTSE;Ut'
+            storeFile file('../signing/com.test.toto.jks')
+            storePassword 'kd9:hdbYsexTSE;Ut'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.beta
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

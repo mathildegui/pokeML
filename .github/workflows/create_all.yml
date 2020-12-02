@@ -21,8 +21,23 @@ jobs:
           versionName=`sed -n 's#versionName ##p' app/build.gradle| cut -d \" -f2`
           export VERSION_NAME=$versionName
           echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
-        env:
-          LAST_NAME: $VERSION_NAME
+
+          keyPassword=`sed -n 's#keyPassword ##p' app/build.gradle| cut -d \' -f2`
+          export KEY_PASSWORD=$keyPassword
+          echo "KEY_PASSWORD=$KEY_PASSWORD" >> $GITHUB_ENV
+
+          keyStorePassword=`sed -n 's#storePassword ##p' app/build.gradle| cut -d \' -f2`
+          export KEY_STORE_PASSWORD=$keyStorePassword
+          echo "KEY_STORE_PASSWORD=$KEY_STORE_PASSWORD" >> $GITHUB_ENV
+
+          keyAlias=`sed -n 's#keyAlias ##p' app/build.gradle| cut -d \' -f2`
+          export ALIAS=$keyAlias
+          echo "ALIAS=$ALIAS" >> $GITHUB_ENV
+
+          storeFile=`sed -n 's#storeFile ##p' app/build.gradle| cut -d \' -f2`
+          signingKey=`openssl base64 < app/$storeFile | tr -d '\n' | tee my_signing_key.jks.base64.txt`
+          export SIGNING_KEY=$signingKey
+          echo "SIGNING_KEY=$SIGNING_KEY" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -43,8 +58,8 @@ jobs:
       - name: Runing build command
         # Run your own gradle command to generate build.
         run: ./gradlew assembleDebug --stacktrace
-      - name: Upload Release Asset
-        id: upload-release-asset
+      - name: Upload Debug Asset
+        id: upload-debug-asset
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -52,6 +67,23 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
           asset_path: app/build/outputs/apk/debug/app-debug.apk
           #asset_name: app-debug-${{ github.event.debug.tag_name }}.apk
-          asset_name: app-debug${{ env.VERSION_NAME }}.apk
+          asset_name: app-debug-${{ env.VERSION_NAME }}.apk
           asset_content_type: application/zip
           #FIXME use this after https://github.com/r0adkll/sign-android-release
+          #FIXME Release beta and prod
+      - name: Sign app APK
+        id: sign-apk
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ env.SIGNING_KEY }}
+          alias: ${{ en.ALIAS }}
+          keyStorePassword: ${{ env.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ env.KEY_PASSWORD }}
+          #env:
+          #  // override default build-tools version (29.0.3) -- optional
+          #  BUILD_TOOLS_VERSION: "30.0.2"
+      - uses: actions/upload-artifact@v2
+          with:
+            name: Signed app bundle
+            path: ${{steps.sign-apk.outputs.signedReleaseFile}}
