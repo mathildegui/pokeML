@@ -92,4 +92,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          path: ${{ steps.sign-apk.outputs.signedReleaseFile }}
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: app/build/outputs/apk/release/app-release-signed.apk
+          asset_name: app-release-${{ env.VERSION_NAME }}.apk
+          asset_content_type: application/zip
